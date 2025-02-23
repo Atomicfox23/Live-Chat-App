@@ -1,0 +1,35 @@
+<html>
+<head></head>
+<body>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Enter message" autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+    <ul id="messages"></ul>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+        socket.on('newMessage', (message) => {
+            const li = document.createElement('li');
+            li.textContent = `${message.from}: ${message.text}`;
+            document.getElementById('messages').appendChild(li);
+        });
+        document.getElementById('message-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = document.getElementById('message-input').value;
+            socket.emit('createMessage', {
+                from: 'User',
+                text: message,
+                createdAt: Date.now()
+            });
+            document.getElementById('message-input').value = '';
+        });
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+    </script>
+</body>
+</html>
