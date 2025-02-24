@@ -1,31 +1,24 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server); // Initialize socket.io
-const port = process.env.PORT || 3000;
+const io = socketIo(server);
 
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/client/index.html"); // Serve the HTML file
-});
+app.use(express.static("client"));
 
-io.on('connection', (socket) => {
-    console.log('New user connected');
+io.on("connection", (socket) => {
+    console.log("A user connected");
 
-    socket.emit('newMessage', { from: 'Server', text: 'Welcome!', createdAt: Date.now() });
-
-    socket.on('createMessage', (message) => {
-        console.log('New message:', message);
-        io.emit('newMessage', message); // Send to everyone
+    socket.on("chatMessage", (msg) => {
+        io.emit("chatMessage", { text: msg.text, id: socket.id }); // Send message + sender ID
     });
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
+    socket.on("disconnect", () => {
+        console.log("A user disconnected");
     });
 });
 
-server.listen(port, () => {
-    console.log(`Server is up on port ${port}`);
-});
+
+server.listen(3000, () => console.log("Server running on http://localhost:3000"));
