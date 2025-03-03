@@ -7,11 +7,25 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <ul id="messages"></ul>
+    <div class="chat-container">
+        <ul id="messages"></ul>
+    </div>
     <div id="bottom-bar">
         <input id="messageInput" type="text" placeholder="Type a message...">
-        <button id="sendBtn"></button>
+        <button id="sendBtn">SEND</button>
     </div>
+    <div class="sidebar" id="sidebar">
+        <h2>Chat Menu</h2>
+        <ul>
+            <li>🔵 Online Users</li>
+            <li>📩 Private Messages</li>
+            <li>⚙️ Settings</li>
+        </ul>
+    </div>
+    
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

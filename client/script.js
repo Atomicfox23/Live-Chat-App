@@ -10,6 +10,16 @@ sendBtn.addEventListener("click", () => {
         messageInput.value = "";
     }
 });
+window.addEventListener("keyup",(e)=>{
+    if (e.key ==="Enter") {
+        const msg = messageInput.value.trim();
+    if (msg) {
+        socket.emit("chatMessage", { text: msg, id: socket.id }); // Send message + sender ID
+        messageInput.value = "";
+    }
+    }
+})
+
 
 socket.on("chatMessage", (data) => {
     const li = document.createElement("li");
@@ -24,3 +34,6 @@ socket.on("chatMessage", (data) => {
 
     messages.appendChild(li);
 });
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+}
