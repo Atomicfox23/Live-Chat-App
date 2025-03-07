@@ -5,62 +5,68 @@ const bodyParser = require("body-parser");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const url = "https://script.google.com/macros/s/AKfycbyjF_TBog1W3-wEMDNzNoc49e3NQWGOGrPowwySrgqO7VoeWMD1wkQ52mgIokezZawZ/exec";
+const url = "https://script.google.com/macros/s/AKfycbwZJvKdl2Wvt96MXqgNFRTWkglWP3Bmaa_M95ab4oijrI8hI6nEITJ3IhqfCpU-EYfL/exec";
+
+var Idsocket;
 
 app.use(express.static("client"));
 app.use(bodyParser.json()); // Parse JSON data
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded data
+
+// Store users (username -> socket ID)
+let users = {};
+
 io.on("connection", (socket) => {
-    console.log("A user connected");
-
-    socket.on("chatMessage", (msg) => {
-        io.emit("chatMessage", { text: msg.text, id: socket.id }); // Send message + sender ID
+    Idsocket = socket.id;
+    console.log(Idsocket);
+    socket.join("room1");
+    io.to("room").emit("chatMessage", { text: "hi", id: "server" });
+    socket.on("chatMessage", (data) => {
+        console.log("Received message:", data);
+        io.to("room1").emit("chatMessage", data);
     });
+    socket.on("register", async ({ username, email, password }) => {
+        if (users[username]) {
+            socket.emit("registerResponse", { success: false, message: "Username already taken." });
+            return;
+        }
 
-    socket.on("disconnect", () => {
-        console.log("A user disconnected");
+        users[username] = socket.id;
+
+        try {
+            await writeData(username, email, password, Idsocket);
+            socket.emit("registerResponse", { success: true });
+        } catch (error) {
+            console.error("Error writing data:", error);
+            socket.emit("registerResponse", { success: false, message: "Signup failed. Try again." });
+        }
     });
 });
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/client/index.html"); // Adjust path as needed
-});
-app.get("/login", (req, res) => {
-    res.sendFile(__dirname + "/client/login.html"); // Adjust path as needed
-});
-app.get("/signup", (req, res) => {
-    res.sendFile(__dirname + "/client/signup.html"); // Adjust path as needed
-});
-// Signup Route to handle POST request
+
+app.get("/", (req, res) => res.sendFile(__dirname + "/client/index.html"));
+app.get("/login", (req, res) => res.sendFile(__dirname + "/client/login.html"));
+app.get("/signup", (req, res) => res.sendFile(__dirname + "/client/signup.html"));
+
+// Signup Route
 app.post("/signup", async (req, res) => {
     const data = req.body;
-   // console.log(data);  // Logs the data sent in the request body
+    console.log("Received signup data:", data);
+
     try {
-        await writeData(data.username,data.email,data.password);  // Send data to Google Apps Script
-        res.redirect("/");  // Redirect after success
+        const socketId = users[data.username] || null; // Get the socket ID if already connected
+        await writeData(data.username, data.email, data.password, Idsocket);
+        res.redirect("/");
     } catch (error) {
         console.error("Error writing data:", error);
         res.status(500).send("Something went wrong, please try again later.");
     }
 });
 
-// Function to fetch data from Google Apps Script (if needed)
-async function fetchData() {
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log(data);  // Logs the sheet data
-    } catch (error) {
-        console.error("Error fetching data:", error);
-    }
-}
-
 // Function to send data to Google Apps Script
-async function writeData(username,email,password) {
-    var data = {
-        name: username,
-        email: email,
-        password: password
-    };
+async function writeData(username, email, password, socketId) {
+    var data = { name: username, email: email, password: password, socketId: socketId };
+    console.log("Sending data:", data);
+
     const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,9 +76,6 @@ async function writeData(username,email,password) {
     const result = await response.text();
     console.log(result);
 }
-    
- // Should log "Success"
 
-//writeData();
 
 server.listen(3000, () => console.log("Server running on http://localhost:3000"));

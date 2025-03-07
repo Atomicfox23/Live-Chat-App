@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link rel="stylesheet" href="./singup-login.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <div class="container">
         <h2>Sign Up</h2>
-        <form action="/signup" method="POST">
+        <form action="/signup" method="POST" id="signup-form">
             <div class="input-field">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
@@ -23,8 +24,61 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Sign Up</button>
+            <p id="error-message" style="color: red; display: none;"></p>
+            <p id="success-message" style="color: green; display: none;"></p>
             <p>Already have an account? <a href="login.html">Login here</a></p>
         </form>
     </div>
+
+    <script>
+        document.getElementById("signup-form").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent page reload
+    
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("error-message");
+            const successMessage = document.getElementById("success-message");
+    
+            errorMessage.style.display = "none";
+            successMessage.style.display = "none";
+    
+            if (!username || !email || !password) {
+                errorMessage.textContent = "All fields are required!";
+                errorMessage.style.display = "block";
+                return;
+            }
+    
+            if (password.length < 6) {
+                errorMessage.textContent = "Password must be at least 6 characters.";
+                errorMessage.style.display = "block";
+                return;
+            }
+    
+            try {
+                const response = await fetch("/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, email, password }),
+                });
+    
+                const result = await response.text();
+    
+                if (response.ok) {
+                    successMessage.textContent = "Signup successful! Redirecting...";
+                    successMessage.style.display = "block";
+                    setTimeout(() => { window.location.href = "/login"; }, 2000);
+                } else {
+                    errorMessage.textContent = result;
+                    errorMessage.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                errorMessage.textContent = "Something went wrong. Please try again.";
+                errorMessage.style.display = "block";
+            }
+        });
+    </script>
+    
 </body>
 </html>
