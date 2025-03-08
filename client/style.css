@@ -97,7 +97,7 @@ button{
 /* Sidebar Styles */
 .sidebar {
     position: fixed;
-    left: -250px; /* Hidden initially */
+    right: -250px; /* Hidden initially */
     top: 0;
     width: 250px;
     height: 100vh;
@@ -144,7 +144,7 @@ button{
 
 /* Open Sidebar */
 .sidebar.open {
-    left: 0;
+    right: 0;
 }
 
 ::-webkit-scrollbar {
