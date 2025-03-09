@@ -12,6 +12,8 @@ var Idsocket;
 app.use(express.static("client"));
 app.use(bodyParser.json()); // Parse JSON data
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded data
+app.set("view engine", "ejs"); // Use EJS
+app.set("views", __dirname + "/client"); // Ensure correct views folder
 
 // Store users (username -> socket ID)
 let users = {};
@@ -43,9 +45,10 @@ io.on("connection", (socket) => {
     });
 });
 
-app.get("/", (req, res) => res.sendFile(__dirname + "/client/index.html"));
-app.get("/login", (req, res) => res.sendFile(__dirname + "/client/login.html"));
-app.get("/signup", (req, res) => res.sendFile(__dirname + "/client/signup.html"));
+app.get("/", (req, res) => res.render("index",{isLoggedIn:false})); // Render EJS properly
+app.get("/login", (req, res) => res.render("login")); 
+app.get("/signup", (req, res) => res.render("signup")); 
+
 
 // Signup Route
 app.post("/signup", async (req, res) => {

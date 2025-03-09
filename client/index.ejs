@@ -7,26 +7,45 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <nav>
+        <a href="/login">LOGIN</a>
+        <a href="/signup">REGISTER</a>
+        <img src="#" alt="">
+    </nav>
+
     <div class="chat-container">
+        <%if(isLoggedIn){%>
         <ul id="messages"></ul>
+        <%}else{%>
+            <h2>please login to start chatting</h2>
+        <%}%>
     </div>
+
     <div id="bottom-bar">
         <input id="messageInput" type="text" placeholder="Type a message...">
         <button id="sendBtn">SEND</button>
     </div>
-    <div class="sidebar" id="sidebar">
-        <h2>Chat Menu</h2>
+
+    <!--<div class="sidebar" id="sidebar">
+        <h2>Friends</h2>
         <ul>
             <li>🔵 Online Users</li>
             <li>📩 Private Messages</li>
             <li>⚙️ Settings</li>
-            <li><a href="/login">login</a></li>
+            <li><a href="/login">Login</a></li>
         </ul>
     </div>
-    
-    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-    
-    
+
+    <div class="sidebar_profile" id="sidebar_profile">
+        <h2>Profile</h2>
+        <ul>
+            <li>🔵 Status</li>
+            <li>📩 Messages</li>
+            <li>⚙️ Settings</li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </div>-->
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

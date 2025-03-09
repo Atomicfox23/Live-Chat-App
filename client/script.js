@@ -2,6 +2,7 @@ const socket = io();
 const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 const messages = document.getElementById("messages");
+var messageAudio = new Audio('./assets/sounds/messageSound.mp3');
 
 sendBtn.addEventListener("click", () => {
     const msg = messageInput.value.trim();
@@ -30,10 +31,9 @@ socket.on("chatMessage", (data) => {
         li.classList.add("my-message");
     } else {
         li.classList.add("other-message");
+        messageAudio.play();
     }
 
     messages.appendChild(li);
 });
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("open");
-}
+
